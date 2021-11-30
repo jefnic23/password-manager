@@ -28,6 +28,9 @@ class User(UserMixin, db.Model):
 
 class Service(db.Model):
     __tablename__ = "services"
-    service = db.Column(db.String(), unique=True, nullable=False)
+    service = db.Column(db.String(), primary_key=True, unique=True, nullable=False)
     password = db.Column(db.String(), nullable=False)
     user_id = db.Column(db.Integer, nullable=False)
+
+    def set_password(self, password):
+        self.password = password

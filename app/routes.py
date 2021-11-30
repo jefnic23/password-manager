@@ -11,6 +11,10 @@ bootstrap = Bootstrap(app)
 login = LoginManager(app)
 login.init_app(app)
 
+@login.user_loader
+def load_user(id):
+    return User.query.get(int(id))
+
 # routes
 
 @app.route('/', methods=['GET', 'POST'])
@@ -19,7 +23,7 @@ def index():
     if login_form.validate_on_submit():
         user_object = User.query.filter_by(username=login_form.username.data).first()
         login_user(user_object, remember=login_form.remember_me.data)
-        return redirect(url_for('password_manager'))
+        return redirect(url_for('pswd_manager'))
     return render_template('index.html', form=login_form)
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -34,6 +38,7 @@ def register():
         db.session.add(user)
         db.session.commit()
         flash('Registered successfully. Please login.', 'success')
+        return redirect(url_for('pswd_manager'))
     return render_template('register.html', form=reg_form)
 
 @app.route('/logout', methods=['GET'])
@@ -74,10 +79,10 @@ def reset_password(token):
         return redirect(url_for('login'))
     return render_template('reset_password.html', form=form)
 
-@app.route('/password-manager')
+@app.route('/password-manager', methods=['GET', 'POST'])
 def pswd_manager():
-    if current_user.is_anonymouse:
-        return redirect(url_for(index))
+    if current_user.is_anonymous:
+        return redirect(url_for('index'))
     # form to create a password
     create_form = CreateServiceForm()
     if create_form.validate_on_submit():
@@ -85,12 +90,14 @@ def pswd_manager():
         password = generate_password()
         hashed_pswd = pbkdf2_sha256.hash(password)
         user_id = User.query.filter_by(id=current_user.id).first()
-        service = Service(service=service_name, password=hashed_pswd, user_id=user_id)
+        service = Service(service=service_name, password=hashed_pswd, user_id=user_id.id)
         db.session.add(service)
         db.session.commit()
         flash('Password created and stored.')
     # form to retrieve a password
-    services = Service.query.filter_by(user_id=current_user.id).all()
-    print(f'\n{[service.service for service in services]}\n')
-    # retrieve_form = SelectServiceForm()
-    return render_template('password-manager.html')
+    select_form = SelectServiceForm()
+    select_form.services.choices = [("", "")] + [(service.service, service.service) for service in Service.query.filter_by(user_id=current_user.id).all()]
+    return render_template('password-manager.html', select_form=select_form, create_form=create_form)
+
+if __name__ == '__main__':
+    app.run()
