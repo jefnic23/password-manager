@@ -1,4 +1,4 @@
-import pyperclip
+import pyperclip, base64
 from flask import render_template, redirect, url_for, flash
 from flask_login import LoginManager, login_user, current_user, logout_user
 from flask_bootstrap import Bootstrap
@@ -10,7 +10,7 @@ from app.email import send_password_reset_email
 from app import app
 
 bootstrap = Bootstrap(app)
-fernet = Fernet(app.config['SECRET_KEY'].encode())
+fernet = Fernet(base64.urlsafe_b64encode(app.config['SECRET_KEY']))
 login = LoginManager(app)
 login.init_app(app)
 
