@@ -1,1 +1,1 @@
-web: gunicorn password_manager:app
+web: gunicorn password_manager:app --preload
