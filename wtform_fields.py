@@ -65,9 +65,9 @@ class ResetPasswordForm(FlaskForm):
 
 class CreateServiceForm(FlaskForm):
     service = StringField('service_label', validators=[InputRequired(message='Service name required')])
-    submit_button = SubmitField("Generate password")
+    submit_create = SubmitField("Generate password")
 
 
 class SelectServiceForm(FlaskForm):
     services = SelectField('services_label')
-    submit_button = SubmitField("Retrieve password")
+    submit_select = SubmitField("Retrieve password")

@@ -1,6 +1,8 @@
+import pyperclip
 from flask import render_template, redirect, url_for, flash
-from flask_login import LoginManager, login_user, current_user, login_required, logout_user
+from flask_login import LoginManager, login_user, current_user, logout_user
 from flask_bootstrap import Bootstrap
+from cryptography.fernet import Fernet
 from wtform_fields import *
 from models import *
 from password_generator import generate_password
@@ -8,6 +10,7 @@ from app.email import send_password_reset_email
 from app import app
 
 bootstrap = Bootstrap(app)
+fernet = Fernet(app.config['SECRET_KEY'])
 login = LoginManager(app)
 login.init_app(app)
 
@@ -58,7 +61,7 @@ def reset_password_request():
         user = User.query.filter_by(email=form.email.data).first()
         if user:
             send_password_reset_email(user)
-        flash("Check your email for instructions on how to reset your password.")
+        flash("Check your email for instructions on how to reset your password.", 'info')
         return redirect(url_for('login'))
     return render_template("reset_password_request.html", form=form)
 
@@ -75,7 +78,7 @@ def reset_password(token):
         hashed_pswd = pbkdf2_sha256.hash(password)
         user.set_password(hashed_pswd)
         db.session.commit()
-        flash('Your password has been reset.')
+        flash('Your password has been reset.', 'success')
         return redirect(url_for('login'))
     return render_template('reset_password.html', form=form)
 
@@ -83,20 +86,43 @@ def reset_password(token):
 def pswd_manager():
     if current_user.is_anonymous:
         return redirect(url_for('index'))
-    # form to create a password
+    create_form = CreateServiceForm()
+    select_form = SelectServiceForm()
+    select_form.services.choices = [("", "")] + [(service.service, service.service) for service in Service.query.filter_by(user_id=current_user.id).all()]
+    return render_template('password-manager.html', select_form=select_form, create_form=create_form)
+
+@app.route('/create-password', methods=['POST'])
+def create_password():
+    if current_user.is_anonymous:
+        return redirect(url_for('index'))
+    select_form = SelectServiceForm()
     create_form = CreateServiceForm()
     if create_form.validate_on_submit():
         service_name = create_form.service.data
         password = generate_password()
-        hashed_pswd = pbkdf2_sha256.hash(password)
+        enc_password = fernet.encrypt(password.encode())
         user_id = User.query.filter_by(id=current_user.id).first()
-        service = Service(service=service_name, password=hashed_pswd, user_id=user_id.id)
+        service = Service(service=service_name, password=enc_password, user_id=user_id.id)
         db.session.add(service)
         db.session.commit()
-        flash('Password created and stored.')
-    # form to retrieve a password
+        flash('Password created and stored.', 'success')
+        return redirect(url_for('pswd_manager'))
+    return render_template('password-manager.html', select_form=select_form, create_form=create_form)
+
+@app.route('/retrieve-password', methods=['GET', 'POST'])
+def retrieve_password():
+    if current_user.is_anonymous:
+        return redirect(url_for('index'))
+    create_form = CreateServiceForm()
     select_form = SelectServiceForm()
     select_form.services.choices = [("", "")] + [(service.service, service.service) for service in Service.query.filter_by(user_id=current_user.id).all()]
+    if select_form.validate_on_submit():
+        service_name = Service.query.filter_by(service=select_form.services.data, user_id=current_user.id).first()
+        password = service_name.password
+        dec_password = fernet.decrypt(password).decode()
+        pyperclip.copy(dec_password)
+        flash('Password has been copied to your clipboard.', 'success')
+        return redirect(url_for('pswd_manager'))
     return render_template('password-manager.html', select_form=select_form, create_form=create_form)
 
 if __name__ == '__main__':
