@@ -1,26 +1,15 @@
 {% extends 'bootstrap/base.html' %}
 
-<!DOCTYPE html>
-<html>
-    <head>
-        <title>Password Manager</title>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="icon" href="{{ url_for('static', filename='icon.png') }}">
-        <link rel="shortcut icon" href="{{ url_for('static', filename='icon.png') }}">
-    </head>
-    <body>
-        
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="alert alert-{{ category }}" role="alert">{{ message }}</div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
+{% block title %} Password Manager {% endblock title %}
 
-        {% block content %}
-        {% endblock %}
+{% block content %}   
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}" role="alert">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
 
-    </body>
-</html>
+    {% block app_content %}{% endblock app_content %}
+{% endblock content %}
