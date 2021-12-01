@@ -10,7 +10,7 @@ from app.email import send_password_reset_email
 from app import app
 
 bootstrap = Bootstrap(app)
-fernet = Fernet(base64.urlsafe_b64encode(app.config['SECRET_KEY']).encode('utf-8'))
+fernet = Fernet(base64.urlsafe_b64encode(app.config['SECRET_KEY'].encode('utf-8')))
 login = LoginManager(app)
 login.init_app(app)
 
