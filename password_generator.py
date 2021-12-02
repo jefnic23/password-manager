@@ -1,5 +1,4 @@
 import string, secrets
-from subprocess import Popen, PIPE
 from app import app
 
 chars = [*string.ascii_lowercase,
@@ -18,6 +17,3 @@ def generate_password(chars=chars):
                 and sum(c in string.punctuation for c in password) >= 1):
             break
     return password
-
-def clipboard(data):
-    return Popen(('xsel', '-i'), stdin=PIPE).communicate(data.encode())
