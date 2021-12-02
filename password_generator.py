@@ -1,4 +1,5 @@
-import string, secrets, subprocess
+import string, secrets
+from subprocess import Popen, PIPE
 from app import app
 
 chars = [*string.ascii_lowercase,
@@ -19,4 +20,4 @@ def generate_password(chars=chars):
     return password
 
 def clipboard(data):
-    return subprocess.run('xclip', input=data.encode(), shell=True)
+    return Popen(('xsel', '-i'), stdin=PIPE).communicate(data.encode())
