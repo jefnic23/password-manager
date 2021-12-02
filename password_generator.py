@@ -1,4 +1,4 @@
-import string, secrets, subprocess
+import string, secrets
 from app import app
 
 chars = [*string.ascii_lowercase,
@@ -17,6 +17,3 @@ def generate_password(chars=chars):
                 and sum(c in string.punctuation for c in password) >= 1):
             break
     return password
-
-def clipboard(data):
-    return subprocess.run(['clip'], input=data.encode(), shell=True)
