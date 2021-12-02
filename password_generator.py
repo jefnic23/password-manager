@@ -19,4 +19,4 @@ def generate_password(chars=chars):
     return password
 
 def clipboard(data):
-    return subprocess.run('clip', input=data.encode(), shell=True)
+    return subprocess.run('xclip', input=data.encode(), shell=True)
