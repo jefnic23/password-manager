@@ -4,8 +4,7 @@ from flask_bootstrap import Bootstrap
 from cryptography.fernet import Fernet
 from wtform_fields import *
 from models import *
-from password_generator import generate_password
-from tkinter import Tk
+from password_generator import *
 from app.email import send_password_reset_email
 from app import app
 
@@ -120,7 +119,7 @@ def retrieve_password():
         service_name = Service.query.filter_by(service=select_form.services.data, user_id=current_user.id).first()
         password = service_name.password
         dec_password = fernet.decrypt(password).decode()
-        Tk().clipboard_append(dec_password)
+        clipboard(dec_password)
         flash('Password has been copied to your clipboard.', 'success')
         return redirect(url_for('pswd_manager'))
     return render_template('password-manager.html', select_form=select_form, create_form=create_form)
