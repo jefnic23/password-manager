@@ -84,13 +84,13 @@ def reset_password(token):
     return render_template('reset_password.html', form=form)
 
 @app.route('/password-manager', methods=['GET', 'POST'])
-def pswd_manager():
+def pswd_manager(password):
     if current_user.is_anonymous:
         return redirect(url_for('index'))
     create_form = CreateServiceForm()
     select_form = SelectServiceForm()
     select_form.services.choices = [("", "")] + [(service.service, service.service) for service in Service.query.filter_by(user_id=current_user.id).all()]
-    return render_template('password-manager.html', select_form=select_form, create_form=create_form, password=False)
+    return render_template('password-manager.html', select_form=select_form, create_form=create_form, password=password)
 
 @app.route('/create-password', methods=['POST'])
 def create_password():
