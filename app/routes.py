@@ -84,7 +84,7 @@ def reset_password(token):
     return render_template('reset_password.html', form=form)
 
 @app.route('/password-manager', methods=['GET', 'POST'])
-def pswd_manager(password):
+def pswd_manager():
     if current_user.is_anonymous:
         return redirect(url_for('index'))
     create_form = CreateServiceForm()
@@ -122,7 +122,7 @@ def retrieve_password():
         password = service_name.password
         dec_password = fernet.decrypt(password).decode()
         flash('Password has been copied to your clipboard.', 'success')
-        return redirect(url_for('pswd_manager'), password=dec_password)
+        return render_template('password-manager.html', select_form=select_form, create_form=create_form, password=dec_password)
     return render_template('password-manager.html', select_form=select_form, create_form=create_form)
 
 if __name__ == '__main__':
