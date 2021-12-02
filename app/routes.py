@@ -90,7 +90,7 @@ def pswd_manager():
     create_form = CreateServiceForm()
     select_form = SelectServiceForm()
     select_form.services.choices = [("", "")] + [(service.service, service.service) for service in Service.query.filter_by(user_id=current_user.id).all()]
-    return render_template('password-manager.html', select_form=select_form, create_form=create_form)
+    return render_template('password-manager.html', select_form=select_form, create_form=create_form, password=False)
 
 @app.route('/create-password', methods=['POST'])
 def create_password():
