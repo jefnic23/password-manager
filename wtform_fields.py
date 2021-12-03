@@ -6,20 +6,9 @@ from passlib.hash import pbkdf2_sha256
 from models import * 
 
 
-def invalid_credentials(form, field):
-    username_entered = form.username.data
-    password_entered = field.data
-
-    user_object = User.query.filter_by(username=username_entered).first()
-    if user_object is None:
-        raise ValidationError("Username or password is incorrect")
-    elif not pbkdf2_sha256.verify(password_entered, user_object.password):
-        raise ValidationError("Username or password is incorrect")
-
-
 class LoginForm(FlaskForm):
-    username = StringField('username_label', validators=[InputRequired(message="Username required")])
-    password = PasswordField('password_label', validators=[InputRequired(message="Password required"), invalid_credentials])
+    username = StringField('Enter your username and password', validators=[InputRequired(message="Username required")])
+    password = PasswordField(validators=[InputRequired(message="Password required")])
     remember_me = BooleanField('Remember me')
     submit_button = SubmitField('Login')
 
@@ -64,10 +53,10 @@ class ResetPasswordForm(FlaskForm):
 
 
 class CreateServiceForm(FlaskForm):
-    service = StringField('service_label', validators=[InputRequired(message='Service name required')])
+    service = StringField('Select a service to get its password.', validators=[InputRequired(message='Service name required')])
     submit_create = SubmitField("Generate password")
 
 
 class SelectServiceForm(FlaskForm):
-    services = SelectField('services_label')
+    services = SelectField("Enter the name of the service you'd like to create a password for.")
     submit_select = SubmitField("Retrieve password")

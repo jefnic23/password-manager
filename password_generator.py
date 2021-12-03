@@ -1,5 +1,4 @@
 import string, secrets
-from app import app
 
 chars = [*string.ascii_lowercase,
          *string.ascii_uppercase,

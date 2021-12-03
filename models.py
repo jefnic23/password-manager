@@ -1,5 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
+from passlib.hash import pbkdf2_sha256
 import jwt, time
 from app import app
 
@@ -11,6 +12,9 @@ class User(UserMixin, db.Model):
     username = db.Column(db.String(25), unique=True, nullable=False)
     password = db.Column(db.String(), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
+
+    def check_password(self, password):
+        return pbkdf2_sha256.verify(password, self.password)
 
     def set_password(self, password):
         self.password = password

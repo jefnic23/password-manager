@@ -26,6 +26,9 @@ def index():
     login_form = LoginForm()
     if login_form.validate_on_submit():
         user_object = User.query.filter_by(username=login_form.username.data).first()
+        if not user_object or not user_object.check_password(login_form.password.data):
+            flash('Invalid username or password', 'danger')
+            return redirect(url_for('index'))
         login_user(user_object, remember=login_form.remember_me.data)
         return redirect(url_for('pswd_manager'))
     return render_template('index.html', form=login_form)
@@ -86,18 +89,17 @@ def reset_password(token):
 @app.route('/password-manager', methods=['GET', 'POST'])
 def pswd_manager():
     if current_user.is_anonymous:
+        flash('Please login.', 'danger')
         return redirect(url_for('index'))
     create_form = CreateServiceForm()
     select_form = SelectServiceForm()
     select_form.services.choices = [("", "")] + [(service.service, service.service) for service in Service.query.filter_by(user_id=current_user.id).all()]
-    return render_template('password-manager.html', select_form=select_form, create_form=create_form)
-
-@app.route('/create-password', methods=['POST'])
-def create_password():
-    if current_user.is_anonymous:
-        return redirect(url_for('index'))
-    select_form = SelectServiceForm()
-    create_form = CreateServiceForm()
+    if select_form.validate_on_submit() and select_form.services.data:
+        service_name = Service.query.filter_by(service=select_form.services.data, user_id=current_user.id).first()
+        password = service_name.password
+        dec_password = fernet.decrypt(password).decode()
+        flash('Password has been copied to your clipboard.', 'success')
+        return render_template('password-manager.html', select_form=select_form, create_form=create_form, password=dec_password)
     if create_form.validate_on_submit():
         service_name = create_form.service.data
         password = generate_password()
@@ -108,21 +110,6 @@ def create_password():
         db.session.commit()
         flash('Password created and stored.', 'success')
         return redirect(url_for('pswd_manager'))
-    return render_template('password-manager.html', select_form=select_form, create_form=create_form)
-
-@app.route('/retrieve-password', methods=['GET', 'POST'])
-def retrieve_password():
-    if current_user.is_anonymous:
-        return redirect(url_for('index'))
-    create_form = CreateServiceForm()
-    select_form = SelectServiceForm()
-    select_form.services.choices = [("", "")] + [(service.service, service.service) for service in Service.query.filter_by(user_id=current_user.id).all()]
-    if select_form.validate_on_submit():
-        service_name = Service.query.filter_by(service=select_form.services.data, user_id=current_user.id).first()
-        password = service_name.password
-        dec_password = fernet.decrypt(password).decode()
-        flash('Password has been copied to your clipboard.', 'success')
-        return render_template('password-manager.html', select_form=select_form, create_form=create_form, password=dec_password)
     return render_template('password-manager.html', select_form=select_form, create_form=create_form)
 
 if __name__ == '__main__':
