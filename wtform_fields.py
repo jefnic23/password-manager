@@ -7,21 +7,21 @@ from models import *
 
 
 class LoginForm(FlaskForm):
-    username = StringField('Enter your username and password', validators=[InputRequired(message="Username required")])
-    password = PasswordField(validators=[InputRequired(message="Password required")])
+    username = StringField('Username', validators=[InputRequired(message="Username required")])
+    password = PasswordField('Password', validators=[InputRequired(message="Password required")])
     remember_me = BooleanField('Remember me')
     submit_button = SubmitField('Login')
 
 
 class RegistrationForm(FlaskForm):
-    username = StringField('username_label', 
+    username = StringField('Username', 
         validators=[InputRequired(message="Username required"), 
         Length(min=4, max=25, message="Username must be between 4 and 25 characters")])
-    email = StringField('email_label', validators=[DataRequired(), Email()])
-    password = PasswordField('password_label',
+    email = StringField('Email', validators=[DataRequired(), Email()])
+    password = PasswordField('Password',
         validators=[InputRequired(message="Password required"), 
         Length(min=8, message="Password must be at least 8 characters")])
-    confirm_pswd = PasswordField('confirm_pswd_label',
+    confirm_pswd = PasswordField('Confirm password',
         validators=[InputRequired(message="Password required"), 
         EqualTo("password", message="Passwords must match")])
     submit_button = SubmitField("Register")
@@ -38,25 +38,25 @@ class RegistrationForm(FlaskForm):
 
 
 class ResetPasswordRequestForm(FlaskForm):
-    email = StringField("email_label", validators=[DataRequired(), Email()])
+    email = StringField("Enter your email", validators=[DataRequired(), Email()])
     submit_button = SubmitField("Request Password Reset")
 
 
 class ResetPasswordForm(FlaskForm):
-    password = PasswordField('password_label',
+    password = PasswordField('New password',
         validators=[InputRequired(message="Password required"), 
         Length(min=8, message="Password must be at least 8 characters")])
-    confirm_pswd = PasswordField('confirm_pswd_label',
+    confirm_pswd = PasswordField('Confirm new password',
         validators=[InputRequired(message="Password required"), 
         EqualTo("password", message="Passwords must match")])
     submit_button = SubmitField("Submit new password")
 
 
 class CreateServiceForm(FlaskForm):
-    service = StringField('Select a service to get its password.', validators=[InputRequired(message='Service name required')])
+    service = StringField("Enter the name of the service you'd like to create a password for", validators=[InputRequired(message='Service name required')])
     submit_create = SubmitField("Generate password")
 
 
 class SelectServiceForm(FlaskForm):
-    services = SelectField("Enter the name of the service you'd like to create a password for.")
+    services = SelectField("Select a service to get its password")
     submit_select = SubmitField("Retrieve password")
