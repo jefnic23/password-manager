@@ -1,7 +1,6 @@
 import string, secrets
 
-chars = [*string.ascii_lowercase,
-         *string.ascii_uppercase,
+chars = [*string.ascii_letters,
          *string.digits,
          *["-", "(", ")", ".", "&", "@", "?", "#", ",", "/", "+", "!"]
          ]
