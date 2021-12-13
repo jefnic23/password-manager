@@ -105,6 +105,13 @@ def pswd_manager():
         password = generate_password()
         enc_password = fernet.encrypt(password.encode())
         user_id = User.query.filter_by(id=current_user.id).first()
+        service_exists = Service.query.filter_by(service=service_name, user_id=current_user.id).first()
+        if service_exists:
+            service_exists.set_password(enc_password)
+            db.session.add(service_exists)
+            db.session.commit()
+            flash('Password changed.', 'success')
+            return redirect(url_for('pswd_manager'))
         service = Service(service=service_name, password=enc_password, user_id=user_id.id)
         db.session.add(service)
         db.session.commit()

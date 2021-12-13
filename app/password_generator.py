@@ -3,7 +3,7 @@ import string, secrets
 chars = [*string.ascii_lowercase,
          *string.ascii_uppercase,
          *string.digits,
-         *string.punctuation
+         *["-", "(", ")", ".", "&", "@", "?", "#", ",", "/", "+", "!"]
          ]
 
 def generate_password(chars=chars):
