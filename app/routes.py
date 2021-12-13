@@ -2,9 +2,9 @@ from flask import render_template, redirect, url_for, flash
 from flask_login import LoginManager, login_user, current_user, logout_user
 from flask_bootstrap import Bootstrap
 from cryptography.fernet import Fernet
-from wtform_fields import *
-from models import *
-from password_generator import generate_password
+from app.wtform_fields import *
+from app.models import *
+from app.password_generator import generate_password
 from app.email import send_password_reset_email
 from app import app
 
