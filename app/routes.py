@@ -93,7 +93,7 @@ def pswd_manager():
         return redirect(url_for('index'))
     create_form = CreateServiceForm()
     select_form = SelectServiceForm()
-    select_form.services.choices = [("", "")] + [(service.service, service.service) for service in Service.query.filter_by(user_id=current_user.id).all()]
+    select_form.services.choices = [("", "")] + [(service.service, service.service) for service in Service.query.filter_by(user_id=current_user.id).order_by('service').all()]
     if select_form.validate_on_submit() and select_form.services.data:
         service_name = Service.query.filter_by(service=select_form.services.data, user_id=current_user.id).first()
         password = service_name.password

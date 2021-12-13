@@ -53,7 +53,7 @@ class ResetPasswordForm(FlaskForm):
 
 
 class CreateServiceForm(FlaskForm):
-    service = StringField("Enter the name of the service you'd like to create a password for", validators=[InputRequired(message='Service name required')])
+    service = StringField("Enter a service name to create or change a password", validators=[InputRequired(message='Service name required')])
     submit_create = SubmitField("Generate password")
 
 
