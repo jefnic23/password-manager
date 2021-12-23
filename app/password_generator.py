@@ -2,8 +2,7 @@ import string, secrets
 
 chars = [*string.ascii_letters,
          *string.digits,
-         *["-", "(", ")", ".", "&", "@", "?", "#", ",", "/", "+", "!"]
-         ]
+         *["-", "(", ")", ".", "&", "@", "?", "#", ",", "/", "+", "!"]]
 
 def generate_password(chars=chars):
     length = secrets.SystemRandom().randrange(12, 16)
