@@ -1,10 +1,7 @@
-from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 from passlib.hash import pbkdf2_sha256
 import jwt, time
-from app import app
-
-db = SQLAlchemy()
+from app import app, db
 
 class User(UserMixin, db.Model):
     __tablename__ = "users"
