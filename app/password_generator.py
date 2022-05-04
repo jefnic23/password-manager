@@ -6,7 +6,7 @@ chars = [*string.ascii_letters,
          
 
 def generate_password(chars=chars):
-    length = secrets.SystemRandom().randrange(12, 16)
+    length = secrets.SystemRandom().randrange(16, 24)
     while True:
         password = ''.join(secrets.choice(chars) for _ in range(length))
         if (any(c.islower() for c in password)
@@ -15,3 +15,4 @@ def generate_password(chars=chars):
                 and sum(c in string.punctuation for c in password) >= 1):
             break
     return password
+    
