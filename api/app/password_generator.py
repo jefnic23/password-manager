@@ -1,4 +1,5 @@
-import string, secrets
+import secrets
+import string
 
 chars = [*string.ascii_letters,
          *string.digits,

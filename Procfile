@@ -1,1 +1,1 @@
-web: gunicorn password_manager:app --preload
+web: gunicorn --chdir api password_manager:app --preload
