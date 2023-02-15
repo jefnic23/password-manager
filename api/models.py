@@ -1,7 +1,8 @@
 from flask_login import UserMixin
 from passlib.hash import pbkdf2_sha256
-import jwt, time
-from app import app, db
+import jwt, time, datetime
+from api import db
+from flask import current_app
 
 class User(UserMixin, db.Model):
     __tablename__ = "users"
@@ -16,16 +17,26 @@ class User(UserMixin, db.Model):
     def set_password(self, password):
         self.password = password
 
-    def get_reset_password_token(self, expires_in=600):
-        return jwt.encode({'reset_password': self.id, 'exp': time() + expires_in}, app.config['SECRET_KEY'], algorithm='HS256')
+    def generate_token(self, claim, expires_in):
+        return jwt.encode(
+            {
+                'exp': datetime.datetime.utcnow() + datetime.timedelta(seconds=expires_in),
+                'iat': datetime.datetime.utcnow(),
+                claim: self.id
+            },
+            current_app.config.get('SECRET_KEY'),
+            algorithm='HS256'
+        )
 
     @staticmethod
-    def verify_reset_password_token(token):
+    def verify_token(token, claim):
         try:
-            id = jwt.decode(token, app.config['SECRET_KEY'], algorithms=['HS256'])['reset_password']
+            return jwt.decode(token, app.config.get('SECRET_KEY'), algorithms=['HS256'])[claim]
+        except jwt.ExpiredSignatureError:
+            return 'Your session has expired. Please log in again.'
         except:
-            return
-        return User.query.get(id)
+            return 'An error occurred during login. Please try again.'
+        # return User.query.get(id)
 
 class Service(db.Model):
     __tablename__ = "services"

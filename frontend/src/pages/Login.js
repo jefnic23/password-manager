@@ -22,6 +22,14 @@ export default function Login() {
      */
     const handleSubmit = (e) => {
         e.preventDefault();
+        fetch(`/api/login`, { method: "GET" })
+        .then(res => res.json())
+        .then(data => {
+            console.log(data);
+        })
+        .catch(err => {
+            console.log(err);
+        });
     }
 
     /**
@@ -34,7 +42,7 @@ export default function Login() {
 
     return (
         <Container>
-            <h2>Password Manager</h2>
+            <h2>Login</h2>
             <Form handleSubmit={handleSubmit}>
                 <FormItem>
                     <Icon 
@@ -70,7 +78,7 @@ export default function Login() {
                     onChange={handleChange}
                     label='Remember me'
                 />
-                <Button type='submit'>Login</Button>
+                <Button type='submit'>Submit</Button>
             </Form>
             <button>Forgot your password?</button>
             <button>Create an account.</button>

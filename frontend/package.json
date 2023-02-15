@@ -29,7 +29,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "start-api": "cd ./api && venv/Scripts/flask run --no-debugger",
+    "start-api": "cd ../api && venv/Scripts/flask run --no-debugger",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
@@ -51,5 +51,6 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  }
+  },
+  "proxy": "http://localhost:5000"
 }
