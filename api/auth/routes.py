@@ -5,8 +5,10 @@ from flask import request
 
 @bp.route('/login', methods=['POST'])
 def login():
-    # todo: validate request
-    email, password = request.json['email'], request.json['password']
+    # validate the request data
+    post_data = request.get_json()
+    email = post_data.get('email')
+    password = post_data.get('password')
     # get the user object using their email (unique to every user)  
     user = User.query.filter_by(email=email).first()
     # try to authenticate the found user using their password
@@ -20,7 +22,13 @@ def login():
                 'Authorization': auth_token
             }
             return response_object, 200
-    return ({'success': True, 'data': [email, password]})
+    # User does not exist. Therefore, we return an error message
+    else:
+        response_object = {
+            'status': 'fail',
+            'message': 'User does not exist.'
+        }
+        return response_object, 404
 
 # @bp.route('/register', methods=['GET', 'POST'])
 # def register():

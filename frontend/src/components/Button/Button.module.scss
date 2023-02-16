@@ -1,14 +1,15 @@
 @import 'styles/themes/mocha.scss';
 
 .button {
-    background-color: $surface-1;
+    background-color: $green;
     height: 34px;
     border-radius: 3px;
     border: none;
-    color: $text;
+    color: $crust;
     transition: 0.13s;
 }
 
 .button:hover {
-    background-color: $surface-2;
+    background-color: #93dd8d;
+    cursor: pointer;
 }

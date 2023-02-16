@@ -1,23 +1,15 @@
-from flask import render_template, redirect, url_for, flash
-from flask_login import LoginManager, login_user, current_user, logout_user
-from flask_bootstrap import Bootstrap
-from cryptography.fernet import Fernet
-from api.wtform_fields import *
+from flask import current_app, request
+from api.auth.decorators import login_required
+from api.email import send_password_reset_email
+from api.main import bp
 from api.models import *
-from api.password_generator import generate_password
-from api.emails import send_password_reset_email
-from auth.decorators import login_required
+from api.crypto.password_generator import generate_password
 
-# bootstrap = Bootstrap(app)
-# fernet = Fernet(app.config['SECRET_KEY'].encode())
-# login = LoginManager(app)
-# login.init_app(app)
-
-# @login.user_loader
-# def load_user(id):
-#     return User.query.get(int(id))
-
-
+@bp.route('services', methods=['GET'])
+@login_required
+def get_services(current_user):
+    services = Service.query.filter_by(user_id=current_user.id).all()
+    return [service.to_dict() for service in services], 200
 
 # @app.route('/password-manager', methods=['GET', 'POST'])
 # @login_required

@@ -1,8 +1,12 @@
-.center {
+.container {
     display: flex;
-    justify-content: center;
     align-items: center;
     text-align: center;
     min-height: 100vh;
     flex-direction: column;
+}
+
+.container::before {
+    content: ' ';
+    flex-grow: 0.38196601;
 }
