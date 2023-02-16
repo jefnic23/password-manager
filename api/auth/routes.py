@@ -1,22 +1,26 @@
 from api.auth import bp
 from api.models import User
+from flask import request
 
 
-@bp.route('/api/login', methods=['GET'])
+@bp.route('/login', methods=['POST'])
 def login():
-    return ({'success': True, 'data': 'retard'})
-    # if current_user.is_authenticated:
-    #     return redirect(url_for('pswd_manager'))
-    # login_form = LoginForm()
-    # if login_form.validate_on_submit():
-    #     user_object = User.query.filter_by(username=login_form.username.data).first()
-    #     if not user_object or not user_object.check_password(login_form.password.data):
-    #         flash('Invalid username or password', 'danger')
-    #         return redirect(url_for('index'))
-    #     login_user(user_object, remember=login_form.remember_me.data)
-    #     return redirect(url_for('pswd_manager'))
-    # return render_template('index.html', form=login_form)
-
+    # todo: validate request
+    email, password = request.json['email'], request.json['password']
+    # get the user object using their email (unique to every user)  
+    user = User.query.filter_by(email=email).first()
+    # try to authenticate the found user using their password
+    if user and user.check_password(password):
+        # generate the auth token
+        auth_token = user.generate_token('sub', 600)
+        if auth_token:
+            response_object = {
+                'status': 'success',
+                'message': 'Successfully logged in.',
+                'Authorization': auth_token
+            }
+            return response_object, 200
+    return ({'success': True, 'data': [email, password]})
 
 # @bp.route('/register', methods=['GET', 'POST'])
 # def register():
