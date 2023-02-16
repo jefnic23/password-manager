@@ -22,14 +22,17 @@ export default function Login() {
      */
     const handleSubmit = (e) => {
         e.preventDefault();
-        fetch(`/api/login`, { method: "GET" })
-        .then(res => res.json())
-        .then(data => {
-            console.log(data);
-        })
-        .catch(err => {
-            console.log(err);
-        });
+
+        let requestOptions = {
+            method: "POST",
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ email: email, password: password })
+        };
+
+        fetch(`/api/login`, requestOptions)
+            .then(res => res.json())
+            .then(data => console.log(data))
+            .catch(err => console.log(err));
     }
 
     /**

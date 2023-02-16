@@ -1,7 +1,7 @@
 from flask_login import UserMixin
 from passlib.hash import pbkdf2_sha256
 import jwt, time, datetime
-from api import db
+from api.app import db
 from flask import current_app
 
 class User(UserMixin, db.Model):
@@ -31,7 +31,7 @@ class User(UserMixin, db.Model):
     @staticmethod
     def verify_token(token, claim):
         try:
-            return jwt.decode(token, app.config.get('SECRET_KEY'), algorithms=['HS256'])[claim]
+            return jwt.decode(token, current_app.config.get('SECRET_KEY'), algorithms=['HS256'])[claim]
         except jwt.ExpiredSignatureError:
             return 'Your session has expired. Please log in again.'
         except:

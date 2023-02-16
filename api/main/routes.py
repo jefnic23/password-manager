@@ -5,7 +5,7 @@ from cryptography.fernet import Fernet
 from api.wtform_fields import *
 from api.models import *
 from api.password_generator import generate_password
-from api.email import send_password_reset_email
+from api.emails import send_password_reset_email
 from auth.decorators import login_required
 
 # bootstrap = Bootstrap(app)
