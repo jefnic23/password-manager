@@ -5,16 +5,24 @@ from flask import abort, request
 
 
 def login_required(f):
+    '''Decorator to check if user is logged in.'''
     @wraps(f)
     def decorated(*args, **kwargs):
         token = None
         if 'Authorization' in request.headers:
-            token = request.headers['Authorization']
+            token = request.headers['Authorization'].split(' ')[1]
+        if not token:
+            return {
+                'message': 'Token is missing.'
+            }, 401
 
         try:
             id = User.verify_token(token, 'sub')
             current_user = User.query.get(id)
-            # do something if current_user fails?
+            if current_user is None:
+                return {
+                    'message': 'User does not exist.'
+                }, 404
         except Exception as e:
             return {
                 'message': 'Something went wrong.',

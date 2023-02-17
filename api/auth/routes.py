@@ -1,6 +1,8 @@
+from flask import request
+
+from api.app import db
 from api.auth import bp
 from api.models import User
-from flask import request
 
 
 @bp.route('/login', methods=['POST'])
@@ -10,7 +12,7 @@ def login():
     email = post_data.get('email')
     password = post_data.get('password')
     # get the user object using their email (unique to every user)  
-    user = User.query.filter_by(email=email).first()
+    user = db.session.execute(db.select(User).filter_by(email=email)).scalar_one_or_none()
     # try to authenticate the found user using their password
     if user and user.check_password(password):
         # generate the auth token

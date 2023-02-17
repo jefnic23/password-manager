@@ -1,15 +1,35 @@
 from flask import current_app, request
+
+from api.app import db
 from api.auth.decorators import login_required
-from api.email import send_password_reset_email
+from api.emails import send_password_reset_email
 from api.main import bp
 from api.models import *
-from api.crypto.password_generator import generate_password
+from cryptography.fernet import Fernet
+
 
 @bp.route('services', methods=['GET'])
 @login_required
 def get_services(current_user):
-    services = Service.query.filter_by(user_id=current_user.id).all()
-    return [service.to_dict() for service in services], 200
+    services = db.session.execute(db.select(Service).filter_by(user_id=current_user.id).order_by('service')).scalars()
+    return {'services': [service.service for service in services]}, 200
+
+
+@bp.route('services', methods=['POST'])
+@login_required
+def create_service(current_user):
+    post_data = request.get_json()
+    service = post_data.get('service')
+    service_exists = db.session.execute(db.select(Service).filter_by(service=service, user_id=user_id)).scalar_one_or_none()
+    if service_exists:
+        return {'message': 'Service already exists.'}, 400    
+    password = Password()
+    fernet = Fernet(current_app.config.get('SECRET_KEY'))
+    enc_password = fernet.encrypt(password.encode())
+    new_service = Service(service=service, password=enc_password, user_id=current_user.id)
+    db.session.add(new_service)
+    db.session.commit()
+    return {'message': 'Service created successfully.'}, 201
 
 # @app.route('/password-manager', methods=['GET', 'POST'])
 # @login_required

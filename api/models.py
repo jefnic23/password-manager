@@ -1,7 +1,13 @@
-from passlib.hash import pbkdf2_sha256
-import jwt, datetime
-from api.app import db
+import datetime
+import secrets
+import string
+
+import jwt
 from flask import current_app
+from passlib.hash import pbkdf2_sha256
+
+from api.app import db
+
 
 class User(db.Model):
     __tablename__ = "users"
@@ -37,6 +43,7 @@ class User(db.Model):
             return 'An error occurred during login. Please try again.'
         # return User.query.get(id)
 
+
 class Service(db.Model):
     __tablename__ = "services"
     service = db.Column(db.String(), primary_key=True, unique=True, nullable=False)
@@ -45,3 +52,24 @@ class Service(db.Model):
 
     def set_password(self, password):
         self.password = password
+
+
+class Password():
+    def __init__(self):
+        self.password = ''
+        self.length = secrets.SystemRandom().randrange(16, 24)
+        self.chars = [*string.ascii_letters,
+                      *string.digits,
+                      *["!", "*", "@", "#", "$", "%", "&", "+", "="]]
+        self.generate_password()
+
+    def generate_password(self):
+        """Generates a random password."""
+        while True:
+            self.password = ''.join(secrets.choice(self.chars) for _ in range(self.length))
+            if (any(c.islower() for c in self.password)
+                    and any(c.isupper() for c in self.password)
+                    and sum(c.isdigit() for c in self.password) >= 2
+                    and sum(c in string.punctuation for c in self.password) >= 1):
+                break
+        return self.password
