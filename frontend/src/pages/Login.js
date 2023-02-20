@@ -84,9 +84,9 @@ export default function Login() {
                     label='Remember me'
                 />
                 <Button type='submit' buttonStyle='primary'>Submit</Button>
+                <Button type='button' buttonStyle='secondary'>Create an account.</Button>
+                <Button type='button' buttonStyle='link'>Forgot your password?</Button>
             </Form>
-            <Button buttonStyle='secondary'>Create an account.</Button>
-            <Button buttonStyle='link'>Forgot your password?</Button>
         </Container>
     )
 }
