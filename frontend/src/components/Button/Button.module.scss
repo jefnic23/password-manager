@@ -30,10 +30,14 @@ button:hover {
 }
 
 .link {
+    position: relative;
+    transform: translate(50%, 0);
     background: linear-gradient(0deg, $blue, $blue) bottom center no-repeat;
     background-size: 0px 3px;
     transition: 0.21s;
     // padding: 0 0 3px 0;
+    width: fit-content;
+    border-radius: 0px;
     text-decoration: none;
     color: $blue;
 }
