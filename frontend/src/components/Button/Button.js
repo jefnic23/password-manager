@@ -5,7 +5,7 @@ export default function Button(props) {
     return (
         <button 
             type = {props.type}
-            className = {styles.button}
+            className = {styles[props.buttonStyle]}
         >   
             {props.children}
         </button>

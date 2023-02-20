@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
+import { Context } from 'Store';
 import Button from 'components/Button';
 import Checkbox from 'components/Checkbox';
 import Container from 'components/Container';
@@ -12,6 +13,7 @@ export default function Login() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [rememberMe, setRememberMe] = useState(false);
+    const [state, dispatch] = useContext(Context);
 
     const iconSize = 'sm';
 
@@ -31,7 +33,7 @@ export default function Login() {
 
         fetch(`/api/login`, requestOptions)
             .then(res => res.json())
-            .then(data => console.log(data))
+            .then(data => dispatch({ type: "SET_TOKEN", payload: data.token }))
             .catch(err => console.log(err));
     }
 
@@ -81,10 +83,10 @@ export default function Login() {
                     onChange={handleChange}
                     label='Remember me'
                 />
-                <Button type='submit'>Submit</Button>
+                <Button type='submit' buttonStyle='primary'>Submit</Button>
             </Form>
-            <button>Forgot your password?</button>
-            <button>Create an account.</button>
+            <Button buttonStyle='secondary'>Create an account.</Button>
+            <Button buttonStyle='link'>Forgot your password?</Button>
         </Container>
     )
 }

@@ -1,6 +1,4 @@
 import datetime
-import secrets
-import string
 
 import jwt
 from flask import current_app
@@ -12,6 +10,7 @@ from api.app import db
 class User(db.Model):
     __tablename__ = "users"
     id = db.Column(db.Integer, primary_key=True)
+    # todo: is username necessary? just use email
     username = db.Column(db.String(25), unique=True, nullable=False)
     password = db.Column(db.String(), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
@@ -46,30 +45,11 @@ class User(db.Model):
 
 class Service(db.Model):
     __tablename__ = "services"
+    # todo: rename service to name
     service = db.Column(db.String(), primary_key=True, unique=True, nullable=False)
     password = db.Column(db.LargeBinary, nullable=False)
+    # todo: make this a foreign key
     user_id = db.Column(db.Integer, nullable=False)
 
     def set_password(self, password):
         self.password = password
-
-
-class Password():
-    def __init__(self):
-        self.password = ''
-        self.length = secrets.SystemRandom().randrange(16, 24)
-        self.chars = [*string.ascii_letters,
-                      *string.digits,
-                      *["!", "*", "@", "#", "$", "%", "&", "+", "="]]
-        self.generate_password()
-
-    def generate_password(self):
-        """Generates a random password."""
-        while True:
-            self.password = ''.join(secrets.choice(self.chars) for _ in range(self.length))
-            if (any(c.islower() for c in self.password)
-                    and any(c.isupper() for c in self.password)
-                    and sum(c.isdigit() for c in self.password) >= 2
-                    and sum(c in string.punctuation for c in self.password) >= 1):
-                break
-        return self.password

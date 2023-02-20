@@ -2,11 +2,13 @@ from flask import request
 
 from api.app import db
 from api.auth import bp
+from api.emails import send_password_reset_email
 from api.models import User
 
 
 @bp.route('/login', methods=['POST'])
 def login():
+    '''Provides a valid token if the user is authenticated.'''
     # validate the request data
     post_data = request.get_json()
     email = post_data.get('email')
@@ -21,7 +23,7 @@ def login():
             response_object = {
                 'status': 'success',
                 'message': 'Successfully logged in.',
-                'Authorization': auth_token
+                'token': auth_token
             }
             return response_object, 200
     # User does not exist. Therefore, we return an error message

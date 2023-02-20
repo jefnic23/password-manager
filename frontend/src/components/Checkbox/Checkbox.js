@@ -1,11 +1,12 @@
 import React from "react";
+import styles from './Checkbox.module.scss';
 
 /**
  * Builds an HTML checkbox input element.
  */
 export default function Checkbox(props) {
     return (
-        <div>
+        <div className={styles.checkbox}>
             <label>
                 <input 
                     type = 'checkbox'
