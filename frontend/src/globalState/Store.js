@@ -1,8 +1,9 @@
 import React, { createContext, useReducer } from 'react';
-import Reducer from 'Reducer';
+import Reducer from './Reducer';
 
 const initialState = {
-    token: null
+    token: null,
+    authenticated: false,
 };
 
 const Store = ({ children }) => {

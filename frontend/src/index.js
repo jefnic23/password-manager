@@ -1,12 +1,18 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import { BrowserRouter } from 'react-router-dom';
+import Store from 'globalState/Store';
 import './index.scss';
 import App from './App';
 import * as serviceWorkerRegistration from './serviceWorkerRegistration';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-    <App />
+    <Store>
+        <BrowserRouter>
+            <App />
+        </BrowserRouter>
+    </Store>
 );
 
 // If you want your app to work offline and load faster, you can change

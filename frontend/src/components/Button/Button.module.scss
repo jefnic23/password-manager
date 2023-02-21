@@ -5,6 +5,8 @@ button {
     border-radius: 3px;
     border: none;
     transition: 0.13s;
+    text-transform: uppercase;
+    font-weight: bold;
 }
 
 button:hover {
@@ -35,10 +37,11 @@ button:hover {
     background: linear-gradient(0deg, $blue, $blue) bottom center no-repeat;
     background-size: 0px 3px;
     transition: 0.21s;
-    // padding: 0 0 3px 0;
     width: fit-content;
     border-radius: 0px;
     text-decoration: none;
+    text-transform: none;
+    font-weight: normal;
     color: $blue;
 }
 

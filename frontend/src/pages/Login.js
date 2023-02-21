@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react';
-import { Context } from 'Store';
+import { Context } from 'globalState/Store';
 import Button from 'components/Button';
 import Checkbox from 'components/Checkbox';
 import Container from 'components/Container';
@@ -7,6 +7,7 @@ import Form from 'components/Form';
 import FormItem from 'components/FormItem';
 import Icon from 'components/Icon';
 import TextInput from 'components/TextInput';
+import { useNavigate } from 'react-router-dom';
 import { faUser, faLock } from '@fortawesome/free-solid-svg-icons';
 
 export default function Login() {
@@ -14,6 +15,7 @@ export default function Login() {
     const [password, setPassword] = useState('');
     const [rememberMe, setRememberMe] = useState(false);
     const [state, dispatch] = useContext(Context);
+    const navigate = useNavigate();
 
     const iconSize = 'sm';
 
@@ -33,7 +35,12 @@ export default function Login() {
 
         fetch(`/api/login`, requestOptions)
             .then(res => res.json())
-            .then(data => dispatch({ type: "SET_TOKEN", payload: data.token }))
+            .then(data => {
+                console.log(data);
+                dispatch({ type: "SET_TOKEN", payload: data.token });
+                dispatch({ type: "SET_AUTHENTICATED", payload: true });
+                navigate('/');
+            })
             .catch(err => console.log(err));
     }
 

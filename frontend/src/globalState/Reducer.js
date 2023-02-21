@@ -5,6 +5,11 @@ const Reducer = (state, action) => {
                 ...state,
                 token: action.payload,
             };
+        case "SET_AUTHENTICATED":
+            return {
+                ...state,
+                authenticated: action.payload,
+            };
         default:
             return state;
     }
