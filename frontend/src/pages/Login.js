@@ -36,7 +36,6 @@ export default function Login() {
         fetch(`/api/login`, requestOptions)
             .then(res => res.json())
             .then(data => {
-                console.log(data);
                 dispatch({ type: "SET_TOKEN", payload: data.token });
                 dispatch({ type: "SET_AUTHENTICATED", payload: true });
                 navigate('/');
@@ -91,7 +90,7 @@ export default function Login() {
                     label='Remember me'
                 />
                 <Button type='submit' buttonStyle='primary'>Submit</Button>
-                <Button type='button' buttonStyle='secondary'>Create an account.</Button>
+                <Button type='button' buttonStyle='secondary'>Create an account</Button>
                 <Button type='button' buttonStyle='link'>Forgot your password?</Button>
             </Form>
         </Container>

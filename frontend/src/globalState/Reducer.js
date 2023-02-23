@@ -1,14 +1,16 @@
 const Reducer = (state, action) => {
-    switch (action.type) {
+    const { type, payload } = action;
+
+    switch (type) {
         case "SET_TOKEN":
             return {
                 ...state,
-                token: action.payload,
+                token: payload,
             };
         case "SET_AUTHENTICATED":
             return {
                 ...state,
-                authenticated: action.payload,
+                authenticated: payload,
             };
         default:
             return state;
