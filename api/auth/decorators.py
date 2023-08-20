@@ -4,10 +4,10 @@ from api.models import User
 from flask import abort, request
 
 
-def login_required(f):
+def login_required(func):
     '''Decorator to check if user is logged in.'''
-    @wraps(f)
-    def decorated(*args, **kwargs):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
         token = None
         if 'Authorization' in request.headers:
             token = request.headers['Authorization'].split(' ')[1]
@@ -29,6 +29,6 @@ def login_required(f):
                 'error': str(e)
             }, 500
 
-        return f(current_user, *args, **kwargs)
+        return func(current_user, *args, **kwargs)
 
-    return decorated
+    return wrapper
