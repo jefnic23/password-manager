@@ -9,3 +9,4 @@ Website for creating and managing passwords.
 - [ ] Delete/update password buttons
 - [ ] Cors?
 - [ ] Add a light theme
+- [ ] Password should be encoded
