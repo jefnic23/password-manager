@@ -19,30 +19,43 @@
 					if (hasPasswordInput) {
 						const node = inputs[0];
 
-						const wrapper = document.createElement("div");
-						wrapper.style.position = "relative";
-						(node.parentNode as HTMLDivElement).insertBefore(
-							wrapper,
+						if (node.ariaHidden) {
+							return false;
+						}
+
+						const container = document.createElement("div");
+						container.style.position = "relative";
+						container.style.width = "100%";
+						(node.parentNode as HTMLElement).insertBefore(
+							container,
 							node,
 						);
-						wrapper.appendChild(node);
+						container.appendChild(node);
 
+						// Create the button
 						const button = document.createElement("button");
-						button.innerText = "🔑";
+						button.innerText = "🔑"; // Using an emoji as the button face
 						button.style.position = "absolute";
 						button.style.right = "0px";
-						button.style.top = "0px";
-						button.style.height = "100%";
+						button.style.top = "50%";
 						button.style.border = "none";
 						button.style.background = "transparent";
-						button.style.color = "grey";
+						button.style.transform = "translate(-50%, -50%)";
+						button.style.marginRight = "8px";
 						button.style.cursor = "pointer";
+						button.style.lineHeight = "1";
+
+						if (container.nextElementSibling?.innerHTML) {
+							button.style.paddingRight = "25px";
+						}
+
 						button.onclick = () => {
 							(node as HTMLInputElement).value =
 								"YourSecurePassword"; // Set this to generate or fetch a secure password as needed
 						};
 
-						wrapper.appendChild(button);
+						// Append the button to the container next to the input
+						container.appendChild(button);
 					}
 
 					return hasPasswordInput;
