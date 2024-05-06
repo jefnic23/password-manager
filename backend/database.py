@@ -1,15 +1,20 @@
-from config import Settings
+from config import Settings, get_settings
+from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncEngine, async_sessionmaker, create_async_engine
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 
-class Database:
-    def __init__(self, settings: Settings):
-        self.engine: AsyncEngine = create_async_engine(
-            settings.DATABASE_URL,
-            echo=True,
-            future=True,
-        )
-        self.session: async_sessionmaker[AsyncSession] = async_sessionmaker(
-            self.engine, expire_on_commit=False, class_=AsyncSession
-        )
+def get_async_engine(settings: Settings = Depends(get_settings)) -> AsyncEngine:
+    return create_async_engine(
+        settings.DATABASE_URL,
+        echo=True,
+        future=True,
+    )
+
+
+async def get_async_session(
+    engine: AsyncEngine = Depends(get_async_engine),
+) -> AsyncSession:
+    session = async_sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)
+    async with session() as async_session:
+        yield async_session

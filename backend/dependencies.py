@@ -1,8 +1,7 @@
-from functools import lru_cache
-from typing import Annotated, AsyncGenerator
+from typing import Annotated
 
-from config import Settings
-from database import Database
+from config import Settings, get_settings
+from database import get_async_session
 from fastapi import Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
@@ -16,28 +15,15 @@ from starlette import status
 OAUTH2_SCHEME = OAuth2PasswordBearer(tokenUrl="token")
 
 
-@lru_cache()
-def get_settings():
-    return Settings()
-
-
-async def get_database_context(
-    settings: Settings = Depends(get_settings),
-) -> AsyncGenerator[AsyncSession, None]:
-    db = Database(settings=settings)
-    async with db.session() as async_session:
-        yield async_session
-
-
 async def get_services_service(
-    session: AsyncSession = Depends(get_database_context),
+    session: AsyncSession = Depends(get_async_session),
     settings: Settings = Depends(get_settings),
 ) -> ServicesService:
     return ServicesService(session=session, settings=settings)
 
 
 async def get_users_service(
-    session: AsyncSession = Depends(get_database_context),
+    session: AsyncSession = Depends(get_async_session),
 ) -> UsersService:
     return UsersService(session=session)
 
