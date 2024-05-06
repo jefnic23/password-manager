@@ -24,5 +24,5 @@ async def get_access_token(
             detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    access_token = auth_service.generate_token(sub=user.email)
+    access_token = auth_service.generate_access_token(sub=user.email)
     return Token(access_token=access_token, token_type="bearer")
