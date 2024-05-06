@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta, timezone
 
-from config import settings
+from config import Settings
 from jose import jwt
 from models.user import User
 from passlib.context import CryptContext
@@ -8,17 +8,13 @@ from services.users_service import UsersService
 
 
 class AuthService:
-    def __init__(self, users_service: UsersService):
+    PASSWORD_CONTEXT = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+    def __init__(self, users_service: UsersService, settings: Settings):
         self.users_service = users_service
-        self.password_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+        self.settings = settings
 
-    def verify_password(self, secret: str, hash: str) -> bool:
-        return self.password_context.verify(secret=secret, hash=hash)
-
-    def hash_password(self, secret) -> str:
-        return self.password_context.hash(secret=secret)
-
-    def generate_token(self, sub: str) -> str:
+    def generate_access_token(self, sub: str) -> str:
         exp = datetime.now(timezone.utc) + timedelta(minutes=5)
         claims = {
             "exp": exp,
@@ -27,7 +23,7 @@ class AuthService:
 
         return jwt.encode(
             claims=claims,
-            key=settings.SECRET_KEY,
+            key=self.settings.SECRET_KEY,
             algorithm="HS256",
         )
 
@@ -38,3 +34,15 @@ class AuthService:
         if not self.verify_password(secret=password, hash=user.password):
             return False
         return user
+
+    @staticmethod
+    def verify_password(
+        secret: str, hash: str, password_context: CryptContext = PASSWORD_CONTEXT
+    ) -> bool:
+        return password_context.verify(secret=secret, hash=hash)
+
+    @staticmethod
+    def hash_password(
+        secret: str, password_context: CryptContext = PASSWORD_CONTEXT
+    ) -> str:
+        return password_context.hash(secret=secret)
