@@ -1,7 +1,10 @@
 import datetime
+from typing import TYPE_CHECKING
 
-from models.user import User
 from sqlmodel import Field, Relationship, SQLModel
+
+if TYPE_CHECKING:
+    from models.user import User
 
 
 class RefreshToken(SQLModel, table=True):
@@ -12,4 +15,4 @@ class RefreshToken(SQLModel, table=True):
     expiry_time: datetime
 
     user_id: int = Field(foreign_key="users.id", unique=True)
-    user: User = Relationship(back_populates="refresh_token")
+    user: "User" = Relationship(back_populates="refresh_token")
