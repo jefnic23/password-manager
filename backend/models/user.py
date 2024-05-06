@@ -1,9 +1,10 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 from sqlmodel import Field, Relationship, SQLModel
 
 if TYPE_CHECKING:
-    from backend.models.service import Service
+    from models.refresh_token import RefreshToken
+    from models.service import Service
 
 
 class User(SQLModel, table=True):
@@ -13,4 +14,7 @@ class User(SQLModel, table=True):
     email: str = Field(unique=True)
     password: str
 
+    refresh_token: Optional["RefreshToken"] = Relationship(
+        back_populates="user", sa_relationship_kwargs={"uselist": False}
+    )
     services: list["Service"] = Relationship(back_populates="user")

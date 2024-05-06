@@ -1,6 +1,5 @@
-from sqlmodel import Field, Relationship, SQLModel
-
 from models.user import User
+from sqlmodel import Field, Relationship, SQLModel
 
 
 class Service(SQLModel, table=True):
