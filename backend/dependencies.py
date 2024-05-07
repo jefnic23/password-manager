@@ -1,3 +1,4 @@
+
 from typing import Annotated
 
 from config import Settings, get_settings
