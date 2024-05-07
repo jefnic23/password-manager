@@ -1,26 +1,32 @@
+from typing import AsyncGenerator
+
 from config import Settings, get_settings
 from fastapi import Depends
+from models.refresh_token import RefreshToken  # noqa: F401
+from models.service import Service  # noqa: F401
+from models.user import User  # noqa: F401
 from sqlalchemy.ext.asyncio import AsyncEngine, async_sessionmaker, create_async_engine
-from sqlmodel import SQLModel
 from sqlmodel.ext.asyncio.session import AsyncSession
 
 
-def get_async_engine(settings: Settings = Depends(get_settings)) -> AsyncEngine:
-    return create_async_engine(
-        settings.DATABASE_URL,
-        echo=True,
-        future=True,
-    )
+class Database:
+    def __init__(self, settings: Settings):
+        self.engine: AsyncEngine = create_async_engine(
+            settings.DATABASE_URL,
+            echo=False,
+            future=True,
+        )
+        self.async_session: async_sessionmaker[AsyncSession] = async_sessionmaker(
+            self.engine, expire_on_commit=False, class_=AsyncSession
+        )
 
 
-async def init_db(engine: AsyncEngine = Depends(get_async_engine)) -> None:
-    async with engine.begin() as conn:
-        await conn.run_sync(SQLModel.metadata.create_all)
+async def get_database(settings: Settings = Depends(get_settings)) -> Database:
+    return Database(settings=settings)
 
 
 async def get_async_session(
-    engine: AsyncEngine = Depends(get_async_engine),
-) -> AsyncSession:
-    session = async_sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)
-    async with session() as async_session:
+    database: Database = Depends(get_database),
+) -> AsyncGenerator[AsyncSession, any]:
+    async with database.async_session() as async_session:
         yield async_session
