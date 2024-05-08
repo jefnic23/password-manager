@@ -1,4 +1,4 @@
-from typing import AsyncGenerator
+from typing import Annotated, AsyncGenerator
 
 from config import Settings, get_settings
 from fastapi import Depends
@@ -30,3 +30,6 @@ async def get_async_session(
 ) -> AsyncGenerator[AsyncSession, any]:
     async with database.async_session() as async_session:
         yield async_session
+
+
+ASYNC_SESSION_DEPENDENCY = Annotated[AsyncSession, Depends(get_async_session)]
