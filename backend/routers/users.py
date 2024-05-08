@@ -1,10 +1,9 @@
 from typing import Annotated
 
-from dependencies import get_auth_service
+from dependencies import AUTH_SERVICE_DEPENDENCY
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
 from schemas.token import Token
-from services.auth_service import AuthService
 from starlette import status
 
 router = APIRouter()
@@ -12,7 +11,7 @@ router = APIRouter()
 
 @router.post("/login")
 async def get_access_token(
-    auth_service: Annotated[AuthService, Depends(get_auth_service)],
+    auth_service: AUTH_SERVICE_DEPENDENCY,
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
 ) -> Token:
     user = await auth_service.authenticate_user(
@@ -24,5 +23,5 @@ async def get_access_token(
             detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    access_token = auth_service.generate_access_token(sub=user.email)
+    access_token = auth_service.generate_token(expiry_minutes=5, sub=user.email)
     return Token(access_token=access_token, token_type="bearer")
