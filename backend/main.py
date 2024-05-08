@@ -4,7 +4,7 @@ from routers import services, users
 
 
 def create_app():
-    app = FastAPI()  # lifespan=lifespan
+    app = FastAPI()
 
     app.add_middleware(
         CORSMiddleware,
