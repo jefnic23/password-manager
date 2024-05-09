@@ -5,8 +5,18 @@ from fastapi import Depends
 from models.refresh_token import RefreshToken  # noqa: F401
 from models.service import Service  # noqa: F401
 from models.user import User  # noqa: F401
+from pydantic import BaseModel, ConfigDict
+from pydantic.alias_generators import to_camel
 from sqlalchemy.ext.asyncio import AsyncEngine, async_sessionmaker, create_async_engine
 from sqlmodel.ext.asyncio.session import AsyncSession
+
+
+class BaseSchema(BaseModel):
+    model_config = ConfigDict(
+        alias_generator=to_camel,
+        populate_by_name=True,
+        from_attributes=True,
+    )
 
 
 class Database:

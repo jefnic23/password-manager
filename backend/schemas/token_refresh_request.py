@@ -1,5 +1,5 @@
-from pydantic import BaseModel
+from database import BaseSchema
 
 
-class TokenRefreshRequest(BaseModel):
+class TokenRefreshRequest(BaseSchema):
     refresh_token: str
