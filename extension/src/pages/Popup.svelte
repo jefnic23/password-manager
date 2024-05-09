@@ -101,7 +101,7 @@
 </script>
 
 <div>
-	<img src="/icon/128.png" alt="" />
+	<img src="/icon.png" alt="" />
 	{#if !loggedIn}
 		<Login bind:loggedIn />
 	{:else}
