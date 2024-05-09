@@ -4,13 +4,14 @@ from dependencies import AUTH_SERVICE_DEPENDENCY
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
 from schemas.token import Token
+from schemas.token_refresh_request import TokenRefreshRequest
 from starlette import status
 
 router = APIRouter()
 
 
 @router.post("/login")
-async def get_access_token(
+async def login(
     auth_service: AUTH_SERVICE_DEPENDENCY,
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
 ) -> Token:
@@ -23,5 +24,22 @@ async def get_access_token(
             detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    access_token = auth_service.generate_token(expiry_minutes=5, sub=user.email)
-    return Token(access_token=access_token, token_type="bearer")
+    access_token = auth_service.generate_access_token(sub=user.id)
+    refresh_token = await auth_service.generate_refresh_token(sub=user.id)
+    return Token(
+        access_token=access_token, token_type="bearer", refresh_token=refresh_token
+    )
+
+
+@router.post("/refresh")
+async def refresh_access(
+    auth_service: AUTH_SERVICE_DEPENDENCY,
+    body: TokenRefreshRequest,
+) -> Token:
+    payload = auth_service.verify_token(body.refresh_token)
+    user_id: int | None = int(payload.get("sub"))
+    access_token = auth_service.generate_access_token(sub=user_id)
+    refresh_token = await auth_service.generate_refresh_token(sub=user_id)
+    return Token(
+        access_token=access_token, token_type="bearer", refresh_token=refresh_token
+    )

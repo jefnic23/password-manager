@@ -4,29 +4,42 @@ from config import Settings
 from exceptions import credentials_exception
 from fastapi import HTTPException
 from jose import JWTError, jwt
+from models.refresh_token import RefreshToken
 from models.user import User
 from passlib.context import CryptContext
+from services.refresh_tokens_service import RefreshTokensService
 from services.users_service import UsersService
 from sqlmodel.ext.asyncio.session import AsyncSession
-from sqlmodel import select
-from models.refresh_token import RefreshToken
 
 
 class AuthService:
     PASSWORD_CONTEXT = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
     def __init__(
-        self, users_service: UsersService, settings: Settings, session: AsyncSession
+        self,
+        session: AsyncSession,
+        settings: Settings,
+        users_service: UsersService,
+        refresh_tokens_service: RefreshTokensService,
     ):
-        self.users_service = users_service
-        self.settings = settings
         self.session = session
+        self.settings = settings
+        self.users_service = users_service
+        self.refresh_tokens_service = refresh_tokens_service
 
-    def generate_token(self, expiry_minutes: int, sub: str) -> str:
+    async def authenticate_user(self, email: str, password: str) -> User | bool:
+        user = await self.users_service.get_user_by_email(email=email)
+        if not user:
+            return False
+        if not AuthService.verify_password(secret=password, hash=user.password):
+            return False
+        return user
+
+    def generate_access_token(self, sub: int, expiry_minutes: int = 5) -> str:
         exp = datetime.now(timezone.utc) + timedelta(minutes=expiry_minutes)
         claims = {
             "exp": exp,
-            "sub": sub,
+            "sub": str(sub),
         }
         return jwt.encode(
             claims=claims,
@@ -34,37 +47,36 @@ class AuthService:
             algorithm="HS256",
         )
 
-    async def authenticate_user(self, email: str, password: str) -> User | bool:
-        user = await self.users_service.get_user(email=email)
-        if not user:
-            return False
-        if not AuthService.verify_password(secret=password, hash=user.password):
-            return False
-        return user
-
-    async def verify_refresh_token(
-        self, token: str, exception: HTTPException = credentials_exception
-    ) -> dict[str, any]:
-        payload = self.verify_token(token)
-        email = payload.get("sub")
-        exp = payload.get("exp")
-        statement = (
-            select(RefreshToken)
-            .where(RefreshToken.user.email == email)
-            .where(RefreshToken.expiry_time == exp)
+    async def generate_refresh_token(
+        self, sub: int, expiry_minutes: int = 43200
+    ) -> str:
+        exp = datetime.now(timezone.utc) + timedelta(minutes=expiry_minutes)
+        claims = {
+            "exp": exp,
+            "sub": str(sub),
+        }
+        token = jwt.encode(
+            claims=claims,
+            key=self.settings.SECRET_KEY,
+            algorithm="HS256",
         )
-        results = await self.session.exec(statement=statement)
-        if not results.one_or_none():
-            raise exception
-        return payload
+        refresh_token = await self.refresh_tokens_service.get_refresh_token(user_id=sub)
+        if not refresh_token:
+            refresh_token = RefreshToken(token=token, expiry_time=exp, user_id=sub)
+            self.session.add(refresh_token)
+        else:
+            refresh_token.token = token
+            refresh_token.expiry_time = exp
+        await self.session.commit()
+        return token
 
     def verify_token(
         self, token: str, exception: HTTPException = credentials_exception
     ) -> dict[str, any]:
         try:
             payload = jwt.decode(token, self.settings.SECRET_KEY, algorithms=["HS256"])
-            email: str | None = payload.get("sub")
-            if email is None:
+            user_id: str | None = payload.get("sub")
+            if user_id is None:
                 raise exception
         except JWTError:
             raise exception
