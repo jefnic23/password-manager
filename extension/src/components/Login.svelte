@@ -17,7 +17,7 @@
 
         if (loggedIn) {
             const responseData: Token = await response.json();
-            accessToken.update(t => t = responseData.access_token);
+            accessToken.update(t => t = responseData.accessToken);
         }
     }
 </script>
