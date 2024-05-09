@@ -12,7 +12,7 @@ from services.refresh_tokens_service import RefreshTokensService
 from services.services_service import ServicesService
 from services.users_service import UsersService
 
-OAUTH2_SCHEME = OAuth2PasswordBearer(tokenUrl="token")
+OAUTH2_SCHEME = OAuth2PasswordBearer(tokenUrl="login")
 OAUTH_DEPENDENCY = Annotated[str, Depends(OAUTH2_SCHEME)]
 
 
