@@ -31,12 +31,14 @@ class Database:
         )
 
 
-async def get_database(settings: Settings = Depends(get_settings)) -> Database:
+async def get_database(
+    settings: Annotated[Settings, Depends(get_settings)],
+) -> Database:
     return Database(settings=settings)
 
 
 async def get_async_session(
-    database: Database = Depends(get_database),
+    database: Annotated[Database, Depends(get_database)],
 ) -> AsyncGenerator[AsyncSession, any]:
     async with database.async_session() as async_session:
         yield async_session
