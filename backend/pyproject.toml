@@ -16,6 +16,7 @@ sqlmodel = "^0.0.18"
 passlib = {extras = ["bcrypt"], version = "^1.7.4"}
 asyncpg = "^0.29.0"
 python-jose = {extras = ["cryptography"], version = "^3.3.0"}
+fastapi-mail = "^1.4.1"
 
 
 [build-system]
