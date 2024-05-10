@@ -16,7 +16,14 @@
     "ignoreDeprecations": "5.0",
     "importsNotUsedAsValues": "remove",
     "verbatimModuleSyntax": true,
-    "types": ["svelte", "chrome"]
+    "types": ["svelte", "chrome"],
+    "baseUrl": ".",
+    "paths": {
+      "@components/*": ["src/components/*"],
+      "@interfaces/*": ["src/interfaces/*"],
+      "@pages/*": ["src/pages/*"],
+      "@stores/*": ["src/stores/*"]
+    }
   },
   "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.svelte"],
   "references": [{ "path": "./tsconfig.node.json" }]
