@@ -1,8 +1,7 @@
 <script lang="ts">
-    import { accessToken } from "../stores";
-    import { type Token } from "../types/token";
-
-    export let loggedIn: boolean;
+    import { accessToken, refreshToken } from "@stores/tokens";
+    import { user, getUser } from "@stores/users";
+    import type { Token } from "@interfaces/token";
 
     async function handleSubmit(event: Event): Promise<void> {
         const formEl = event.target as HTMLFormElement;
@@ -13,11 +12,15 @@
             body: data,
         });
 
-        loggedIn = response.status == 200;
-
-        if (loggedIn) {
+        if (response.status == 200) {
             const responseData: Token = await response.json();
             accessToken.update(t => t = responseData.accessToken);
+            refreshToken.update(t => t = responseData.refreshToken);
+            user.set(await getUser($accessToken));
+        } else if (response.status == 401) {
+            console.log("Username or password incorrect.");
+        } else {
+            console.log("Error logging in.");
         }
     }
 </script>
