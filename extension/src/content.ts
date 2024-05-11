@@ -1,38 +1,83 @@
-// import { getAccessToken } from "./stores";
+import browser from "webextension-polyfill";
 
 const hostname = window.location.hostname;
-
 console.log(hostname);
 
-function checkForPasswordInputs(): boolean {
+async function checkForPasswordInputs(): Promise<boolean> {
     const inputs = document.querySelectorAll(
         'input[type="Password"]',
     );
+
+    if (inputs.length > 0) {
+        const accessToken = await getToken("accessToken");
+        const password = await getPassword(hostname, accessToken as string);
+        const node = inputs[0];
+        (node as HTMLInputElement).value = password;
+    }
     
     return inputs.length > 0;
 }
 
-const observer = new MutationObserver(mutations => {
-    for (const mutation of mutations) {
-        if (mutation.addedNodes.length > 0) {
-            const found = checkForPasswordInputs();
-            if (found) {
-                observer.disconnect();  // Stop observing if password input is found
-                console.log("Observer disconnected: Password input found.");
-                break;
+async function startMutationObserver(): Promise<void> {
+    const observer = new MutationObserver(async mutations => {
+        for (const mutation of mutations) {
+            if (mutation.addedNodes.length > 0) {
+                const found = await checkForPasswordInputs();
+                if (found) {
+                    observer.disconnect();  // Stop observing if password input is found
+                    console.log("Observer disconnected: Password input found.");
+                    break;
+                }
             }
         }
+    });
+    
+    // Start observing the body for added nodes
+    observer.observe(document.body, {
+        childList: true,
+        subtree: true
+    });
+    
+    // Remember to disconnect the observer when it's no longer needed to avoid memory leaks
+    window.addEventListener('unload', () => observer.disconnect());
+}
+
+// Run the initial check and start observing
+if (!checkForPasswordInputs()) {
+    startMutationObserver();
+} else {
+    console.log("Password inputs handled on initial check.");
+}
+
+async function getPassword(hostname: string, accessToken: string): Promise<string> {
+    const response = await fetch(`http://127.0.0.1:8000/services/${hostname}`, {
+        headers: {
+            Authorization: `Bearer ${accessToken}`,
+        },
+    });
+
+    if (response.status == 200) {
+        const password: string = await response.json();
+        return password;
+    } else if (response.status == 401) {
+        console.log("Unable to validate credentials.");
+    } else {
+        console.log("Error retrieving password.");
     }
-});
 
-// Start observing the body for added nodes
-observer.observe(document.body, {
-    childList: true,
-    subtree: true
-});
+    return "";
+}
 
-// Remember to disconnect the observer when it's no longer needed to avoid memory leaks
-window.addEventListener('unload', () => observer.disconnect());
+async function getToken(token: string): Promise<string | null> {
+    const result = await browser.storage.local.get(token);
+    if (result[token]) {
+        console.log(`${token} retrieved from storage.`);
+        return result[token];
+    } else {
+        console.log(`${token} not found.`);
+        return null;
+    }
+}
 
 // chrome.tabs.query(
 //     { active: true, currentWindow: true },
