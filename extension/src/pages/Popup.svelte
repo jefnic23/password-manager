@@ -41,5 +41,6 @@
 	img {
 		width: 128px;
 		height: 128px;
+		filter: drop-shadow(0 0 2em #ffcc00);
 	}
 </style>
