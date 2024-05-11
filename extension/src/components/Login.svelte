@@ -14,8 +14,8 @@
 
         if (response.status == 200) {
             const responseData: Token = await response.json();
-            accessToken.update(t => t = responseData.accessToken);
-            refreshToken.update(t => t = responseData.refreshToken);
+            accessToken.set(responseData.accessToken);
+            refreshToken.set(responseData.refreshToken);
             user.set(await getUser($accessToken));
         } else if (response.status == 401) {
             console.log("Username or password incorrect.");
