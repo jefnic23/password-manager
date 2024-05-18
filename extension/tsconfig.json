@@ -14,6 +14,7 @@
     "skipLibCheck": true,
     "noEmit": true,
     "ignoreDeprecations": "5.0",
+    "preserveValueImports": false,
     "importsNotUsedAsValues": "remove",
     "verbatimModuleSyntax": true,
     "types": ["svelte", "chrome"],
