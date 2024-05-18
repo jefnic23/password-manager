@@ -24,7 +24,7 @@ async def add_service(
     await services_service.add(
         user_id=current_user.id, name=body.name, password=encrypted_password
     )
-    return services_service.decrypt_password(encrypted_password)
+    return new_password
 
 
 @router.get("/services/{name}")
@@ -40,3 +40,17 @@ async def get_service(
             detail="Password not found",
         )
     return services_service.decrypt_password(encrypted_password)
+
+
+@router.put("/services/{name}")
+async def update_service(
+    current_user: CURRENT_USER_DEPENDENCY,
+    services_service: SERVICES_SERVICE_DEPENDENCY,
+    name: str,
+) -> str:
+    new_password = services_service.generate_password()
+    encrypted_password = services_service.encrypt_password(new_password)
+    await services_service.update(
+        user_id=current_user.id, name=name, password=encrypted_password
+    )
+    return new_password
