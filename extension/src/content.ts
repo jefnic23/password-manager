@@ -1,3 +1,5 @@
+import type { Token } from "./interfaces/token";
+import { jwtDecode } from "jwt-decode";
 import browser from "webextension-polyfill";
 
 const hostname = window.location.hostname;
@@ -9,18 +11,56 @@ async function checkForPasswordInputs(): Promise<boolean> {
     ) as HTMLInputElement)?.form;
 
     if (form) {
-        const accessToken = await getToken("accessToken");
+        let accessToken = await getToken("accessToken");
+
         if (!accessToken) {
             console.log("accessToken not present during check.")
             return false;
         }
+
+        const decodedAccessToken = jwtDecode(accessToken);
+        if (
+            (decodedAccessToken.exp as number) <
+            Math.floor(Date.now() / 1000)
+        ) {
+            const refreshToken = await getToken("refreshToken");
+
+            if (!refreshToken) {
+                console.log("refreshToken not present during check.")
+                return false;
+            }
+
+            const response = await fetch(`http://127.0.0.1:8000/refresh`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ refreshToken: refreshToken }),
+            });
+
+            if (response.status !== 200) {
+                console.log("Error refreshing access.")
+                return false;
+            }
+
+            const responseData: Token = await response.json();
+            await saveToken({ accessToken: responseData.accessToken });
+            await saveToken({ refreshToken: responseData.refreshToken });
+
+            accessToken = responseData.accessToken;
+        }
+
         const password = await getPassword(hostname, accessToken as string);
 
         const usernameInput = form.querySelector('input[type="email"]') || form.querySelector('input[type="text"]');
-        setInputValue(usernameInput as HTMLInputElement, "jefnic23@gmail.com");
+        if (usernameInput){
+            setInputValue(usernameInput as HTMLInputElement, "jefnic23@gmail.com");
+        }
 
         const passwordInput = form.querySelector('input[type="password"]');
-        setInputValue(passwordInput as HTMLInputElement, password);
+        if (passwordInput) {
+            setInputValue(passwordInput as HTMLInputElement, password);
+        }
     }
 
     return form != null;
@@ -76,6 +116,16 @@ async function getToken(token: string): Promise<string | null> {
     } else {
         console.log(`${token} not found.`);
         return null;
+    }
+}
+
+async function saveToken(token: Record<string, string>): Promise<void> {
+    try {
+        await browser.storage.local.set(token);
+    } catch {
+        console.log(`Error saving token.`);
+    } finally {
+        console.log(`token saved.`);
     }
 }
 

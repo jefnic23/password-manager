@@ -4,6 +4,7 @@
 	import { jwtDecode } from "jwt-decode";
 	import { accessToken, refreshToken } from "@stores/tokens";
 	import { user, getUser } from "@stores/users";
+	import type { Token } from "@interfaces/token";
 
 	onMount(async () => {
 		if ($accessToken && $refreshToken) {
@@ -13,6 +14,25 @@
 				Math.floor(Date.now() / 1000)
 			) {
 				user.set(await getUser($accessToken));
+			} else {
+				const response = await fetch(`http://127.0.0.1:8000/refresh`, {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json"
+					},
+					body: JSON.stringify({ refreshToken: $refreshToken }),
+				});
+
+				if (response.status === 200) {
+					const responseData: Token = await response.json();
+					accessToken.set(responseData.accessToken);
+					refreshToken.set(responseData.refreshToken);
+					user.set(await getUser($accessToken));
+				} else if (response.status == 401) {
+					console.log("Username or password incorrect.");
+				} else {
+					console.log("Error logging in.");
+				}
 			}
 		}
 	});
