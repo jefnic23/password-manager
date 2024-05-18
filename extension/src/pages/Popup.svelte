@@ -42,5 +42,6 @@
 		width: 128px;
 		height: 128px;
 		filter: drop-shadow(0 0 2em #ffcc00);
+		margin-bottom: 3rem;
 	}
 </style>
