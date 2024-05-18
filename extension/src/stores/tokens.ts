@@ -23,7 +23,6 @@ async function saveToken(token: Record<string, string>): Promise<void> {
     }
 }
 
-
 let savedAccessToken: string | null = await getToken("accessToken");
 export let accessToken: Writable<string> = writable(savedAccessToken || "");
 accessToken.subscribe(async token => await saveToken({ accessToken: token }));
