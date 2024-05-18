@@ -1,4 +1,4 @@
-import { getToken } from "@stores/tokens";
+import browser from "webextension-polyfill";
 
 const hostname = window.location.hostname;
 console.log(hostname);
@@ -17,17 +17,10 @@ async function checkForPasswordInputs(): Promise<boolean> {
         const password = await getPassword(hostname, accessToken as string);
 
         const usernameInput = form.querySelector('input[type="email"]') || form.querySelector('input[type="text"]');
-        const passwordInput = form.querySelector('input[type="password"]');
+        setInputValue(usernameInput as HTMLInputElement, "jefnic23@gmail.com");
 
-        [usernameInput, passwordInput].forEach(element => {
-            (element as Element).addEventListener('input', () => {
-                const input = element as HTMLInputElement;
-                if (!input.value) {
-                    input.focus();
-                    input.value = input.type === 'password' ? password : 'jefnic23@gmail.com';
-                }
-            });
-        });
+        const passwordInput = form.querySelector('input[type="password"]');
+        setInputValue(passwordInput as HTMLInputElement, password);
     }
 
     return form != null;
@@ -62,6 +55,29 @@ async function startMutationObserver(): Promise<void> {
     await checkForPasswordInputs();
     await startMutationObserver();
 })();
+
+function setInputValue(field: HTMLInputElement, value: string) {
+    const nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value')?.set;
+    if (nativeInputValueSetter) {
+        nativeInputValueSetter.call(field, value);
+
+        field.dispatchEvent(new Event('input', { bubbles: true }));
+        field.dispatchEvent(new Event('change', { bubbles: true }));
+    } else {
+        console.error('Failed to get property descriptor for value setter.');
+    }
+}
+
+async function getToken(token: string): Promise<string | null> {
+    const result = await browser.storage.local.get(token);
+    if (result[token]) {
+        console.log(`${token} retrieved from storage.`);
+        return result[token];
+    } else {
+        console.log(`${token} not found.`);
+        return null;
+    }
+}
 
 async function getPassword(hostname: string, accessToken: string): Promise<string> {
     const response = await fetch(`http://127.0.0.1:8000/services/${hostname}`, {
