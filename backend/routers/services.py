@@ -1,6 +1,6 @@
 from dependencies import CURRENT_USER_DEPENDENCY, SERVICES_SERVICE_DEPENDENCY
-from fastapi import APIRouter, HTTPException
-from starlette import status
+from fastapi import APIRouter, HTTPException, status
+from schemas.create_service_request import CreateServiceRequest
 
 router = APIRouter()
 
@@ -11,6 +11,20 @@ async def get_all_services(
     services_service: SERVICES_SERVICE_DEPENDENCY,
 ) -> list[str]:
     return await services_service.get_all(user_id=current_user.id)
+
+
+@router.post("/services", status_code=status.HTTP_201_CREATED)
+async def add_service(
+    current_user: CURRENT_USER_DEPENDENCY,
+    services_service: SERVICES_SERVICE_DEPENDENCY,
+    body: CreateServiceRequest,
+) -> str:
+    new_password = services_service.generate_password()
+    encrypted_password = services_service.encrypt_password(new_password)
+    await services_service.add(
+        user_id=current_user.id, name=body.name, password=encrypted_password
+    )
+    return services_service.decrypt_password(encrypted_password)
 
 
 @router.get("/services/{name}")

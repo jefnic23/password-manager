@@ -12,7 +12,8 @@ class ServicesService:
     CHARS: list[str] = [
         *string.ascii_letters,
         *string.digits,
-        *["!", "*", "@", "#", "$", "%", "&", "+", "="],
+        *string.punctuation,
+        # *["!", "*", "@", "#", "$", "%", "&", "+", "="],
     ]
 
     def __init__(self, session: AsyncSession, settings: Settings):
@@ -85,6 +86,11 @@ class ServicesService:
         )
         results = await self.session.exec(statement=statement)
         return results.first()
+
+    async def add(self, user_id: int, name: str, password: str) -> None:
+        new_service = Service(name=name, password=password, user_id=user_id)
+        self.session.add(new_service)
+        await self.session.commit()
 
     def generate_password(
         self,
