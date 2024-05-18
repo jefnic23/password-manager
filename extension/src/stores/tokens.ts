@@ -2,7 +2,7 @@ import type { Writable } from "svelte/store";
 import { writable } from "svelte/store";
 import browser from "webextension-polyfill";
 
-export async function getToken(token: string): Promise<string | null> {
+async function getToken(token: string): Promise<string | null> {
     const result = await browser.storage.local.get(token);
     if (result[token]) {
         console.log(`${token} retrieved from storage.`);
@@ -24,10 +24,10 @@ async function saveToken(token: Record<string, string>): Promise<void> {
 }
 
 
-// let savedAccessToken: string | null = await getToken("accessToken");
-export let accessToken: Writable<string> = writable("");
+let savedAccessToken: string | null = await getToken("accessToken");
+export let accessToken: Writable<string> = writable(savedAccessToken || "");
 accessToken.subscribe(async token => await saveToken({ accessToken: token }));
 
-// let savedRefreshToken: string | null = await getToken("refreshToken");
-export let refreshToken: Writable<string> = writable("");
+let savedRefreshToken: string | null = await getToken("refreshToken");
+export let refreshToken: Writable<string> = writable(savedRefreshToken || "");
 refreshToken.subscribe(async token => await saveToken({ refreshToken: token }));
