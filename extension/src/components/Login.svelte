@@ -1,7 +1,7 @@
 <script lang="ts">
     import { accessToken, refreshToken } from "@stores/tokens";
     import { user, getUser } from "@stores/users";
-    import type { Token } from "@interfaces/token";
+    import { type Token } from "@interfaces/token";
 
     async function handleSubmit(event: Event): Promise<void> {
         const formEl = event.target as HTMLFormElement;

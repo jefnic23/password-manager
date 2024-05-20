@@ -1,9 +1,14 @@
-import type { Token } from "./interfaces/token";
-import { jwtDecode } from "jwt-decode";
+import { type Token, isExpired } from "./interfaces/token";
 import browser from "webextension-polyfill";
 
 const hostname = window.location.hostname;
 console.log(hostname);
+
+// Run the initial check and start observing
+(async () => {
+    await checkForPasswordInputs();
+    await startMutationObserver();
+})();
 
 async function checkForPasswordInputs(): Promise<boolean> {
     const form = (document.querySelector(
@@ -18,15 +23,11 @@ async function checkForPasswordInputs(): Promise<boolean> {
             return false;
         }
 
-        const decodedAccessToken = jwtDecode(accessToken);
-        if (
-            (decodedAccessToken.exp as number) <
-            Math.floor(Date.now() / 1000)
-        ) {
+        if (isExpired(accessToken)) {
             const refreshToken = await getToken("refreshToken");
 
             if (!refreshToken) {
-                console.log("refreshToken not present during check.")
+                console.log("refreshToken not present during check.");
                 return false;
             }
 
@@ -39,7 +40,7 @@ async function checkForPasswordInputs(): Promise<boolean> {
             });
 
             if (response.status !== 200) {
-                console.log("Error refreshing access.")
+                console.log("Error refreshing access.");
                 return false;
             }
 
@@ -50,7 +51,12 @@ async function checkForPasswordInputs(): Promise<boolean> {
             accessToken = responseData.accessToken;
         }
 
-        const password = await getPassword(hostname, accessToken as string);
+        let password = await getPassword(hostname, accessToken as string);
+
+        if (!password) {
+            return false;
+            // password = await createPassword(hostname, accessToken);
+        }
 
         const usernameInput = form.querySelector('input[type="email"]') || form.querySelector('input[type="text"]');
         if (usernameInput){
@@ -90,17 +96,12 @@ async function startMutationObserver(): Promise<void> {
     window.addEventListener('unload', () => observer.disconnect());
 }
 
-// Run the initial check and start observing
-(async () => {
-    await checkForPasswordInputs();
-    await startMutationObserver();
-})();
-
 function setInputValue(field: HTMLInputElement, value: string) {
     const nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value')?.set;
     if (nativeInputValueSetter) {
         nativeInputValueSetter.call(field, value);
 
+        field.dispatchEvent(new Event('focus', { bubbles: true }))
         field.dispatchEvent(new Event('input', { bubbles: true }));
         field.dispatchEvent(new Event('change', { bubbles: true }));
     } else {
@@ -136,13 +137,37 @@ async function getPassword(hostname: string, accessToken: string): Promise<strin
         },
     });
 
-    if (response.status == 200) {
+    if (response.status === 200) {
         const password: string = await response.json();
         return password;
-    } else if (response.status == 401) {
+    } else if (response.status === 401) {
         console.log("Unable to validate credentials.");
+    } else if (response.status === 404) {
+        console.log("Password not found.");
     } else {
         console.log("Error retrieving password.");
+    }
+
+    return "";
+}
+
+async function createPassword(hostname: string, accessToken: string): Promise<string> {
+    const response = await fetch(`http://127.0.0.1:8000/services/${hostname}`, {
+        method: "POST",
+        headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ name: hostname })
+    });
+
+    if (response.status === 200) {
+        const password: string = await response.json();
+        return password;
+    } else if (response.status === 401) {
+        console.log("Unable to validate credentials.");
+    } else {
+        console.log("Error creating password.");
     }
 
     return "";
