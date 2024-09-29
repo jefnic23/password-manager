@@ -1,6 +1,7 @@
-from models.user import User
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
+
+from backend.models.user import User
 
 
 class UsersService:

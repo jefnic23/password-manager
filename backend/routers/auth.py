@@ -1,11 +1,12 @@
 from typing import Annotated
 
-from dependencies import AUTH_SERVICE_DEPENDENCY
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
-from schemas.token import Token
-from schemas.token_refresh_request import TokenRefreshRequest
 from starlette import status
+
+from backend.dependencies import AUTH_SERVICE_DEPENDENCY
+from backend.schemas.token import Token
+from backend.schemas.token_refresh_request import TokenRefreshRequest
 
 router = APIRouter()
 

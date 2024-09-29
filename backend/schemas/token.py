@@ -1,4 +1,4 @@
-from database import BaseSchema
+from backend.database import BaseSchema
 
 
 class Token(BaseSchema):

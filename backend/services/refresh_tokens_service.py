@@ -1,6 +1,7 @@
-from models.refresh_token import RefreshToken
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
+
+from backend.models.refresh_token import RefreshToken
 
 
 class RefreshTokensService:

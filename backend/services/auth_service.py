@@ -1,15 +1,16 @@
 from datetime import datetime, timedelta, timezone
 
-from config import Settings
-from exceptions import credentials_exception
 from fastapi import HTTPException
 from jose import JWTError, jwt
-from models.refresh_token import RefreshToken
-from models.user import User
 from passlib.context import CryptContext
-from services.refresh_tokens_service import RefreshTokensService
-from services.users_service import UsersService
 from sqlmodel.ext.asyncio.session import AsyncSession
+
+from backend.config import Settings
+from backend.exceptions import credentials_exception
+from backend.models.refresh_token import RefreshToken
+from backend.models.user import User
+from backend.services.refresh_tokens_service import RefreshTokensService
+from backend.services.users_service import UsersService
 
 
 class AuthService:

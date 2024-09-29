@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from routers import services, users, auth
+
+from backend.routers import auth, services, users
 
 
 def create_app():

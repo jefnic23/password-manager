@@ -1,11 +1,12 @@
 import secrets
 import string
 
-from config import Settings
 from cryptography.fernet import Fernet
-from models.service import Service
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
+
+from backend.config import Settings
+from backend.models.service import Service
 
 
 class ServicesService:

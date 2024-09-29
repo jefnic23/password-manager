@@ -1,14 +1,15 @@
 from typing import Annotated, AsyncGenerator
 
-from config import Settings, get_settings
 from fastapi import Depends
-from models.refresh_token import RefreshToken  # noqa: F401
-from models.service import Service  # noqa: F401
-from models.user import User  # noqa: F401
 from pydantic import BaseModel, ConfigDict
 from pydantic.alias_generators import to_camel
 from sqlalchemy.ext.asyncio import AsyncEngine, async_sessionmaker, create_async_engine
 from sqlmodel.ext.asyncio.session import AsyncSession
+
+from backend.config import Settings, get_settings
+from backend.models.refresh_token import RefreshToken  # noqa: F401
+from backend.models.service import Service  # noqa: F401
+from backend.models.user import User  # noqa: F401
 
 
 class BaseSchema(BaseModel):

@@ -1,5 +1,6 @@
-from dependencies import CURRENT_USER_DEPENDENCY
 from fastapi import APIRouter
+
+from backend.dependencies import CURRENT_USER_DEPENDENCY
 
 router = APIRouter()
 

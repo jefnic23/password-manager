@@ -1,6 +1,7 @@
-from dependencies import CURRENT_USER_DEPENDENCY, SERVICES_SERVICE_DEPENDENCY
 from fastapi import APIRouter, HTTPException, status
-from schemas.create_service_request import CreateServiceRequest
+
+from backend.dependencies import CURRENT_USER_DEPENDENCY, SERVICES_SERVICE_DEPENDENCY
+from backend.schemas.create_service_request import CreateServiceRequest
 
 router = APIRouter()
 
