@@ -1,1 +1,0 @@
-web: gunicorn --chdir api password_manager:app --preload
